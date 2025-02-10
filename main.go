@@ -7,9 +7,30 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
+
+type RateLimiter struct {
+	lastRequest time.Time
+	minInterval time.Duration
+}
+
+func newRateLimiter(interval time.Duration) *RateLimiter {
+	return &RateLimiter{
+		lastRequest: time.Now(),
+		minInterval: interval,
+	}
+}
+
+func (rl RateLimiter) Wait() {
+	elapsed := time.Since(rl.lastRequest)
+	if elapsed < rl.minInterval {
+		time.Sleep(rl.minInterval - elapsed)
+	}
+	rl.lastRequest = time.Now()
+}
 
 type MessageTask struct {
 	Message *tgbotapi.Message
@@ -34,12 +55,14 @@ func main() {
 	bot.Debug = true
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	taskChan := make(chan MessageTask, 100)
+	rateLimiter := newRateLimiter(time.Second)
+
+	taskChan := make(chan MessageTask, 300)
 
 	var wg sync.WaitGroup
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 30; i++ {
 		wg.Add(1)
-		go messageWorker(taskChan, &wg)
+		go messageWorker(taskChan, &wg, rateLimiter)
 	}
 
 	u := tgbotapi.NewUpdate(0)
@@ -67,7 +90,7 @@ func main() {
 	}
 }
 
-func messageWorker(taskChan <-chan MessageTask, wg *sync.WaitGroup) {
+func messageWorker(taskChan <-chan MessageTask, wg *sync.WaitGroup, rl *RateLimiter) {
 	defer wg.Done()
 
 	triggerGifs := map[string]string{
@@ -86,7 +109,7 @@ func messageWorker(taskChan <-chan MessageTask, wg *sync.WaitGroup) {
 			messageText := task.Message.Text
 			for phrase, gifPath := range triggerGifs {
 				if containsTrigger(messageText, phrase) {
-					sendGifResponse(task.Bot, task.Message, gifPath)
+					sendGifResponse(task.Bot, task.Message, rl, gifPath)
 					break
 				}
 			}
@@ -95,38 +118,39 @@ func messageWorker(taskChan <-chan MessageTask, wg *sync.WaitGroup) {
 			log.Printf("Recieved GIF with the unique ID: %s", task.Message.Animation.FileUniqueID)
 
 			if responsePath, exists := gifTriggers[task.Message.Animation.FileUniqueID]; exists {
-				sendGifResponse(task.Bot, task.Message, responsePath)
-			}
-		}
-
-		messageText := task.Message.Text
-		chatID := task.Message.Chat.ID
-
-		for phrase, gifPath := range triggerGifs {
-			if containsTrigger(messageText, phrase) {
-				gif := tgbotapi.NewDocument(chatID, tgbotapi.FilePath(gifPath))
-				gif.ReplyToMessageID = task.Message.MessageID
-				_, err := task.Bot.Send(gif)
-				if err != nil {
-					log.Println(err)
-				}
+				sendGifResponse(task.Bot, task.Message, rl, responsePath)
 				break
 			}
 		}
 	}
 }
 
-func sendGifResponse(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, gifPath string) {
+func sendGifResponse(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, rl *RateLimiter, gifPath string) {
 	if _, err := os.Stat(gifPath); os.IsNotExist(err) {
 		log.Printf("Gif file not found: %s", gifPath)
 		return
 	}
 
-	gif := tgbotapi.NewDocument(msg.Chat.ID, tgbotapi.FilePath(gifPath))
+	rl.Wait()
+
+	gif := tgbotapi.NewVideo(msg.Chat.ID, tgbotapi.FilePath(gifPath))
 	gif.ReplyToMessageID = msg.MessageID
-	_, err := bot.Send(gif)
-	if err != nil {
-		log.Println(err)
+
+	maxRetries := 3
+	for retry := 0; retry < maxRetries; retry++ {
+		_, err := bot.Send(gif)
+		if err != nil {
+			if strings.Contains(err.Error(), "Too Many Requests") {
+				retryAfter := 5 * time.Second
+				if retry < maxRetries-1 {
+					log.Printf("Rate limited. Waiting %v before retry %d/%d",
+						retryAfter, retry+1, maxRetries)
+					time.Sleep(retryAfter)
+					continue
+				}
+			}
+		}
+		break
 	}
 
 }
