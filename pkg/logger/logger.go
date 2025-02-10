@@ -9,6 +9,5 @@ var Logger *slog.Logger
 
 func Init() {
 	Logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
-
 	slog.SetDefault(Logger)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/pushinist/telegram-bot/internal/config"
 	"github.com/pushinist/telegram-bot/internal/handler"
 	"github.com/pushinist/telegram-bot/internal/model"
-	"os"
+
 	"sync"
 )
 
@@ -31,10 +31,10 @@ func New(cfg *config.Config) (*Bot, error) {
 	}, nil
 }
 
-func (b *Bot) Start(sigChan chan<- os.Signal) {
+func (b *Bot) Start() {
 	for i := 0; i < b.workers; i++ {
 		b.wg.Add(1)
-		go b.startWorker(sigChan)
+		go b.startWorker()
 	}
 
 	u := tgbotapi.NewUpdate(0)
