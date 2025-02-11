@@ -1,15 +1,16 @@
-FROM golang:1.23.6-alpine AS builder
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
-COPY . .
-
+COPY go.mod go.sum ./
 RUN go mod download
+COPY . .
 RUN go build -o telegram-bot ./cmd/bot/main.go
 
 FROM alpine:latest
 
 WORKDIR /app
 COPY --from=builder /app/telegram-bot .
+COPY --from=builder /app/.env .
 COPY assets/gifs ./assets/gifs
 
 CMD ["./telegram-bot"]

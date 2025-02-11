@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"github.com/joho/godotenv"
+	"log/slog"
 	"os"
 	"strconv"
 )
@@ -16,12 +17,14 @@ type Config struct {
 func Load() (*Config, error) {
 	path := ".env"
 	for {
-		err := godotenv.Load()
+		slog.Info("Trying to load the .env file")
+		err := godotenv.Load(path)
 		if err == nil {
 			break
 		}
 		path = "../" + path
 	}
+	slog.Info("env found")
 
 	if _, exists := os.LookupEnv("TELEGRAM_BOT_TOKEN"); !exists {
 		return nil, errors.New("telegram bot token not set")

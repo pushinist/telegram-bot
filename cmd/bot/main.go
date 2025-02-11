@@ -5,6 +5,7 @@ import (
 	"github.com/pushinist/telegram-bot/internal/bot"
 	"github.com/pushinist/telegram-bot/internal/config"
 	"github.com/pushinist/telegram-bot/pkg/logger"
+	"log"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -12,12 +13,14 @@ import (
 )
 
 func main() {
+	log.Println("Starting Telegram Bot")
 	logger.Init()
-
+	slog.Info("Logger initialized")
 	cfg, err := config.Load()
 	if err != nil {
 		slog.Error(fmt.Sprintf("Error loading config: %v", err))
 	}
+	slog.Info("Config loaded")
 
 	tgBot, err := bot.New(cfg)
 	if err != nil {
