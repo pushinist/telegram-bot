@@ -29,6 +29,7 @@ func main() {
 
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
+	slog.Info("Shutting down")
 
 	tgBot.Stop()
 }

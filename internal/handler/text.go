@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"errors"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pushinist/telegram-bot/internal/model"
-	"log/slog"
 	"strings"
 )
 
@@ -26,13 +24,11 @@ func (h *TextHandler) CanHandle(message *tgbotapi.Message) bool {
 	return message.Text != ""
 }
 
-func (h *TextHandler) Handle(task model.MessageTask) error {
+func (h *TextHandler) Handle(task *model.MessageTask) error {
 	for trigger, gifPath := range h.triggers {
 		if strings.Contains(trigger, strings.ToLower(task.Message.Text)) {
-			slog.Info("Trying to send")
-			sendGifResponse(task.Bot, task.Message, gifPath)
-			return nil
+			return sendGifResponse(task.Bot, task.Message, gifPath)
 		}
 	}
-	return errors.New("trigger not found")
+	return nil
 }

@@ -8,6 +8,6 @@ type MessageTask struct {
 }
 
 type Handler interface {
-	Handler(task MessageTask) error
+	Handle(task *MessageTask) error
 	CanHandle(message *tgbotapi.Message) bool
 }
