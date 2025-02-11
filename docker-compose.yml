@@ -5,7 +5,10 @@ services:
     build: .
     container_name: telegram-gif-bot
     restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - WORKERS=${WORKERS}
     env_file:
-      - .env
+      - ./.env
     volumes:
       - ./assets/gifs:/app/assets/gifs
