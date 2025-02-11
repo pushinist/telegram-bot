@@ -1,1 +1,6 @@
 .env
+
+telegram-bot
+
+.idea
+.vscode/

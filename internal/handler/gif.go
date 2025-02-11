@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pushinist/telegram-bot/internal/model"
 )
@@ -22,10 +21,9 @@ func (h *GifHandler) CanHandle(message *tgbotapi.Message) bool {
 	return message.Animation != nil
 }
 
-func (h *GifHandler) Handle(task model.MessageTask) error {
+func (h *GifHandler) Handle(task *model.MessageTask) error {
 	if responsePath, exists := h.triggers[task.Message.Animation.FileUniqueID]; exists {
-		sendGifResponse(task.Bot, task.Message, responsePath)
-		return nil
+		return sendGifResponse(task.Bot, task.Message, responsePath)
 	}
-	return errors.New("trigger not found")
+	return nil
 }

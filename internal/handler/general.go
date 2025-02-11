@@ -1,16 +1,16 @@
 package handler
 
 import (
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
 	"log/slog"
 	"os"
 )
 
-func sendGifResponse(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, gifPath string) {
+func sendGifResponse(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, gifPath string) error {
 	if _, err := os.Stat(gifPath); os.IsNotExist(err) {
-		log.Printf("Gif file not found: %s", gifPath)
-		return
+		slog.Error(fmt.Sprintf("Gif file not found: %s", gifPath))
+		return err
 	}
 
 	gif := tgbotapi.NewVideo(msg.Chat.ID, tgbotapi.FilePath(gifPath))
@@ -20,6 +20,7 @@ func sendGifResponse(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, gifPath string
 		slog.Error(err.Error())
 	}
 	slog.Info("Message sent")
+	return nil
 
 	//maxRetries := 3
 	//for retry := 0; retry < maxRetries; retry++ {

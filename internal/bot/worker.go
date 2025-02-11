@@ -5,27 +5,31 @@ import (
 	"log/slog"
 )
 
-func (b *Bot) startWorker() {
+func (b *Bot) startWorker(id int) {
 	defer b.wg.Done()
 
+	slog.Info(fmt.Sprintf("worker %d starting", id))
+
 	for task := range b.tasks {
-		slog.Info(fmt.Sprintf("task message: %v", task.Message))
-		if b.handlers.TextHandler.CanHandle(task.Message) {
-			slog.Info(fmt.Sprintf("Message read: %v", task.Message))
-			err := b.handlers.TextHandler.Handle(task)
-			if err != nil {
-				slog.Error(err.Error())
-			}
-			break
+		slog.Info(fmt.Sprintf("worker %d processing message: %v", id, task.Message.MessageID))
+
+		if err := b.handlers.Handle(task); err != nil {
+			slog.Error(err.Error())
 		}
 
-		if b.handlers.GifHandler.CanHandle(task.Message) {
-			err := b.handlers.GifHandler.Handle(task)
-			slog.Info(fmt.Sprintf("Message read: %v", task.Message))
-			if err != nil {
-				//sigChan <- os.Interrupt
-			}
-			break
-		}
+		//if b.handlers.TextHandler.CanHandle(task.Message) {
+		//	slog.Info(fmt.Sprintf("worker %d processing text message: %v", task.Message.Text))
+		//	if err := b.handlers.TextHandler.Handle(task); err != nil {
+		//		slog.Error(err.Error())
+		//	}
+		//}
+		//
+		//if b.handlers.GifHandler.CanHandle(task.Message) {
+		//	slog.Info(fmt.Sprintf("worker %d processing gif message: %v", task.Message.Animation.FileUniqueID))
+		//	if err := b.handlers.GifHandler.Handle(task); err != nil {
+		//		slog.Error(err.Error())
+		//	}
+		//
+		//}
 	}
 }
