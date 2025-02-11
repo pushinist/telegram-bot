@@ -13,9 +13,9 @@ type TextHandler struct {
 func NewTextHandler() *TextHandler {
 	return &TextHandler{
 		triggers: map[string]string{
-			"разрабы дауны": "./gifs/devs.gif",
-			"разраб даун":   "./gifs/devs.gif",
-			"даун":          "./gifs/devs.gif",
+			"разрабы дауны": "./assets/gifs/devs.gif",
+			"разраб даун":   "./assets/gifs/devs.gif",
+			"даун":          "./assets/gifs/devs.gif",
 		},
 	}
 }

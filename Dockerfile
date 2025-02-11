@@ -10,6 +10,6 @@ FROM alpine:latest
 
 WORKDIR /app
 COPY --from=builder /app/telegram-bot .
-COPY asstes/gifs ./assets/gifs
+COPY assets/gifs ./assets/gifs
 
 CMD ["./telegram-bot"]
