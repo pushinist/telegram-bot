@@ -1,10 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/pushinist/telegram-bot/internal/bot"
 	"github.com/pushinist/telegram-bot/internal/config"
 	"github.com/pushinist/telegram-bot/pkg/logger"
-	"log"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -16,12 +16,12 @@ func main() {
 
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("Error loading config: %v", err)
+		slog.Error(fmt.Sprintf("Error loading config: %v", err))
 	}
 
 	tgBot, err := bot.New(cfg)
 	if err != nil {
-		log.Fatalf("Error creating bot: %v", err)
+		slog.Error(fmt.Sprintf("Error creating telegram bot: %v", err))
 	}
 	slog.Info("Bot started")
 	go tgBot.Start()

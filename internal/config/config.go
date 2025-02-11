@@ -14,10 +14,15 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
-	err := godotenv.Load()
-	if err != nil {
-		return nil, err
+	path := ".env"
+	for {
+		err := godotenv.Load()
+		if err == nil {
+			break
+		}
+		path = "../" + path
 	}
+
 	if _, exists := os.LookupEnv("TELEGRAM_BOT_TOKEN"); !exists {
 		return nil, errors.New("telegram bot token not set")
 	}
