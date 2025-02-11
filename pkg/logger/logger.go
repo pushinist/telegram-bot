@@ -8,6 +8,12 @@ import (
 var Logger *slog.Logger
 
 func Init() {
-	Logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		slog.Error("failed to open log file", "error", err)
+		return
+	}
+
+	Logger = slog.New(slog.NewJSONHandler(logFile, nil))
 	slog.SetDefault(Logger)
 }
