@@ -2,10 +2,18 @@ package handler
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log/slog"
 	"os"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
+
+func ParseMessage(message *tgbotapi.Message) string {
+	if message.Text != "" {
+		return message.Text
+	}
+	return message.Animation.FileUniqueID
+}
 
 func sendGifResponse(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, gifPath string) error {
 	if _, err := os.Stat(gifPath); os.IsNotExist(err) {
@@ -21,23 +29,5 @@ func sendGifResponse(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, gifPath string
 	}
 	slog.Info("Message sent")
 	return nil
-
-	//maxRetries := 3
-	//for retry := 0; retry < maxRetries; retry++ {
-	//	_, err := bot.Send(gif)
-	//	slog.Info("Message sent")
-	//	if err != nil {
-	//		if strings.Contains(err.Error(), "Too Many Requests") {
-	//			retryAfter := 5 * time.Second
-	//			if retry < maxRetries-1 {
-	//				log.Printf("Rate limited. Waiting %v before retry %d/%d",
-	//					retryAfter, retry+1, maxRetries)
-	//				time.Sleep(retryAfter)
-	//				continue
-	//			}
-	//		}
-	//	}
-	//	break
-	//}
 
 }

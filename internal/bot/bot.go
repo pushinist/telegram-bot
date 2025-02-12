@@ -2,11 +2,12 @@ package bot
 
 import (
 	"fmt"
+	"log/slog"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pushinist/telegram-bot/internal/config"
 	"github.com/pushinist/telegram-bot/internal/handler"
 	"github.com/pushinist/telegram-bot/internal/model"
-	"log/slog"
 
 	"sync"
 )
@@ -50,15 +51,15 @@ func (b *Bot) Start() {
 			continue
 		}
 
-		slog.Info(fmt.Sprintf("Recieved message: %v", update.Message))
+		slog.Info(fmt.Sprintf("Recieved message: %v", handler.ParseMessage(update.Message)))
 		select {
 		case b.tasks <- model.MessageTask{
 			Message: update.Message,
 			Bot:     b.api,
 		}:
-			slog.Info(fmt.Sprintf("Processing message: %v", update.Message))
+			slog.Info(fmt.Sprintf("Processing message: %v", handler.ParseMessage(update.Message)))
 		default:
-			slog.Info(fmt.Sprintf("Channel is full, skipping message: %v", update.Message))
+			slog.Info(fmt.Sprintf("Channel is full, skipping message: %v", handler.ParseMessage(update.Message)))
 
 		}
 

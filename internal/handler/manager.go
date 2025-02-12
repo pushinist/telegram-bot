@@ -2,8 +2,9 @@ package handler
 
 import (
 	"fmt"
-	"github.com/pushinist/telegram-bot/internal/model"
 	"log/slog"
+
+	"github.com/pushinist/telegram-bot/internal/model"
 )
 
 type Manager struct {
@@ -22,7 +23,7 @@ func NewManager() *Manager {
 func (m *Manager) Handle(task model.MessageTask) error {
 	for _, handler := range m.handlers {
 		if handler.CanHandle(task.Message) {
-			slog.Info(fmt.Sprintf("Handler found for message %d", task.Message.MessageID))
+			slog.Info(fmt.Sprintf("Handler found for message %v", ParseMessage(task.Message)))
 			return handler.Handle(&task)
 		}
 	}

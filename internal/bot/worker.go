@@ -3,6 +3,8 @@ package bot
 import (
 	"fmt"
 	"log/slog"
+
+	"github.com/pushinist/telegram-bot/internal/handler"
 )
 
 func (b *Bot) startWorker(id int) {
@@ -11,7 +13,7 @@ func (b *Bot) startWorker(id int) {
 	slog.Info(fmt.Sprintf("worker %d starting", id))
 
 	for task := range b.tasks {
-		slog.Info(fmt.Sprintf("worker %d processing message: %v", id, task.Message.MessageID))
+		slog.Info(fmt.Sprintf("worker %d processing message: %v", id, handler.ParseMessage(task.Message)))
 
 		if err := b.handlers.Handle(task); err != nil {
 			slog.Error(err.Error())

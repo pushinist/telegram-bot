@@ -1,9 +1,10 @@
 package handler
 
 import (
+	"strings"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pushinist/telegram-bot/internal/model"
-	"strings"
 )
 
 type TextHandler struct {
@@ -16,6 +17,7 @@ func NewTextHandler() *TextHandler {
 			"разрабы дауны": "./assets/gifs/devs.gif",
 			"разраб даун":   "./assets/gifs/devs.gif",
 			"даун":          "./assets/gifs/devs.gif",
+			"йоу":           "./assets/gifs/cat-wif.gif",
 		},
 	}
 }
