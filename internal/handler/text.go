@@ -15,7 +15,7 @@ type TextHandler struct {
 func NewTextHandler() *TextHandler {
 	return &TextHandler{
 		triggers: map[*regexp.Regexp]string{
-			regexp.MustCompile(`(?i)(?:да[у]?н[а-я]|разраб[а-я])`): "./assets/gifs/devs.gif",
+			regexp.MustCompile(`(?i)(?:даун[а-я]|разраб[а-я])`): "./assets/gifs/devs.gif",
 			regexp.MustCompile(`(?i)й[оО][уУ]?(?:\b|[^а-яА-Я]|$)`):   "./assets/gifs/cat-wif.gif",
 		},
 

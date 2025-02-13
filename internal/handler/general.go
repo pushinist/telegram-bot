@@ -12,7 +12,11 @@ func ParseMessage(message *tgbotapi.Message) string {
 	if message.Text != "" {
 		return message.Text
 	}
-	return message.Animation.FileUniqueID
+	if message.Animation != nil {
+		return message.Animation.FileUniqueID
+	}
+
+	return fmt.Sprintf("%v", message)
 }
 
 func sendGifResponse(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, gifPath string) error {
